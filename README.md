@@ -1,9 +1,11 @@
 # Mortgage Xpert
-**An Enterprise-Grade RAG System deployed via Terraform on AWS & Databricks.**
+
+A Mortage Expert System that uses Databricks and AWS Bedrock to provide a Mortgage Advisor to users that can be consumed via ios and android apps.
 
 ## System Overview
 
-This is a Mortage Expert System that uses Databricks and AWS Bedrock to provide a Mortgage Advisor to users that can be consumed via ios and android apps.
+**Enterprise-Grade RAG System deployed via Terraform on AWS & Databricks.**
+
 
 ### 1. System Architecture
 The following diagram illustrates the data flow and component integration across AWS and Databricks.
@@ -37,9 +39,13 @@ graph LR
 
 ### Architectural Evolution
 This platform represents a significant architectural upgrade from a standard Multi-Agent Amazon Bedrock implementation. By integrating **Databricks**, the system transitions from a basic retrieval chatbot to a robust **MLOps Platform** featuring:
+
 1.  **Industrial Data Engineering**: Replacing ad-hoc S3 uploads with Databricks Auto Loader for scalable, reliable PDF ingestion.
+
 2.  **Governed Knowledge**: Utilizing Databricks Unity Catalog and Delta Lake to ensure data quality and lineage before it reaches the vector store.
+
 3.  **Advanced Evaluation**: Implementing MLflow to systematically benchmark agent performance against "Golden Datasets," moving beyond manual testing.
+
 4.  **Hybrid Intelligence**: Orchestrating a synergy between AWS Bedrock Agents (Logic/Retrieval) and SageMaker endpoints (Specialized Inference).
 
 ## Scalable Infrastructure (Main Module Approach)
