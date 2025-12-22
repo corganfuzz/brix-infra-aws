@@ -90,16 +90,20 @@ The infrastructure is provisioned using the **Terraform Main Module** pattern. T
 
 ## Repository Structure
 ```text
-terraform_project/
+.
 ├── env/
-│   └── dev01/              # Production Environment Configuration
-├── main/                   # Umbrella Module (Core Architecture)
-└── modules/                
-    ├── 01_networking/      # VPC, Multi-AZ Networking
-    ├── 02_storage/         # S3 Buckets, IAM Policies
-    ├── 03_databricks/      # workspace, Clusters, Jobs
-    ├── 04_bedrock/         # Agents, Action Groups, KB
-    └── 05_sagemaker/       # Custom Inference Endpoints
+│   ├── dev/                
+│   ├── staging/            
+│   └── prod/               
+├── main/                   # Umbrella Module
+├── modules/                
+│   ├── 01_networking/      # VPC, Multi-AZ Networking
+│   ├── 02_storage/         
+│   ├── 03_databricks/      # Workspace, Clusters, Jobs
+│   ├── 04_bedrock/         # Agents, Action Groups, KB
+│   └── 05_sagemaker/       # Custom Inference Endpoints
+└── scripts/
+    └── setup_remote_state.sh # CLI Script for S3 Backend
 ```
 
 ## Technology Stack
