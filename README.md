@@ -48,26 +48,6 @@ This platform represents a significant architectural upgrade from a standard Mul
 
 4.  **Hybrid Intelligence**: Orchestrating a synergy between AWS Bedrock Agents (Logic/Retrieval) and SageMaker endpoints (Specialized Inference).
 
-## Scalable Infrastructure (Main Module Approach)
-The infrastructure is provisioned using the **Terraform Main Module** pattern. This strictly separates environment configuration from resource logic, ensuring:
-*   **Identical Environments**: Development, Staging, and Production environments share the exact same codebase, eliminating configuration drift.
-*   **Atomic Updates**: Changes to the core "Umbrella" module propagate consistently across all environments.
-*   **Simplified State Management**: Each environment maintains an isolated state file backend.
-
-## Repository Structure
-```text
-terraform_project/
-├── env/
-│   └── dev01/              # Production Environment Configuration
-├── main/                   # Umbrella Module (Core Architecture)
-└── modules/                
-    ├── 01_networking/      # VPC, Multi-AZ Networking
-    ├── 02_storage/         # S3 Buckets, IAM Policies
-    ├── 03_databricks/      # workspace, Clusters, Jobs
-    ├── 04_bedrock/         # Agents, Action Groups, KB
-    └── 05_sagemaker/       # Custom Inference Endpoints
-```
-
 ---
 
 ### 2. HTTP Communication Flow
@@ -101,6 +81,26 @@ sequenceDiagram
 ```
 
 ---
+
+## Scalable Infrastructure (Main Module Approach)
+The infrastructure is provisioned using the **Terraform Main Module** pattern. This strictly separates environment configuration from resource logic, ensuring:
+*   **Identical Environments**: Development, Staging, and Production environments share the exact same codebase, eliminating configuration drift.
+*   **Atomic Updates**: Changes to the core "Umbrella" module propagate consistently across all environments.
+*   **Simplified State Management**: Each environment maintains an isolated state file backend.
+
+## Repository Structure
+```text
+terraform_project/
+├── env/
+│   └── dev01/              # Production Environment Configuration
+├── main/                   # Umbrella Module (Core Architecture)
+└── modules/                
+    ├── 01_networking/      # VPC, Multi-AZ Networking
+    ├── 02_storage/         # S3 Buckets, IAM Policies
+    ├── 03_databricks/      # workspace, Clusters, Jobs
+    ├── 04_bedrock/         # Agents, Action Groups, KB
+    └── 05_sagemaker/       # Custom Inference Endpoints
+```
 
 ## Technology Stack
 
