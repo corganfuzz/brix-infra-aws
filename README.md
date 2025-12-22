@@ -1,9 +1,9 @@
-# Mortgage Xpert: Unified GenAI MLOps Platform
-
+# Mortgage Xpert
 **An Enterprise-Grade RAG System deployed via Terraform on AWS & Databricks.**
 
 ## System Overview
-This project implements a **Mortgage Underwriting Copilot**, a sophisticated AI system capable of navigating complex regulatory frameworks (e.g., Freddie Mac/Fannie Mae selling guidelines) with high precision.
+
+This is a Mortage Expert System that uses Databricks and AWS Bedrock to provide a Mortgage Advisor to users that can be consumed via ios and android apps.
 
 ### Architectural Evolution
 This platform represents a significant architectural upgrade from a standard Multi-Agent Amazon Bedrock implementation. By integrating **Databricks**, the system transitions from a basic retrieval chatbot to a robust **MLOps Platform** featuring:
