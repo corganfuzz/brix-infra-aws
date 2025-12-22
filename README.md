@@ -97,11 +97,11 @@ The infrastructure is provisioned using the **Terraform Main Module** pattern. T
 │   └── prod/               
 ├── main/                   # Umbrella Module
 ├── modules/                
-│   ├── 01_networking/      # VPC, Multi-AZ Networking
-│   ├── 02_storage/         
-│   ├── 03_databricks/      # Workspace, Clusters, Jobs
-│   ├── 04_bedrock/         # Agents, Action Groups, KB
-│   └── 05_sagemaker/       # Custom Inference Endpoints
+│   ├── networking/         # VPC, Multi-AZ Networking
+│   ├── storage/         
+│   ├── databricks/         # Workspace, Clusters, Jobs
+│   ├── bedrock/            # Agents, Action Groups, KB
+│   └── sagemaker/          # Custom Inference Endpoints
 └── scripts/
     └── setup_remote_state.sh # CLI Script for S3 Backend
 ```
