@@ -1,10 +1,10 @@
 # Mortgage Xpert
 
-A Mortage Expert System that uses Databricks and AWS Bedrock to provide a Mortgage Advisor to users that can be consumed via ios and android apps.
+A unified GenAI MLOps platform using Databricks and AWS Bedrock to power an AI Mortgage Advisor for iOS and Android.
 
 ## System Overview
 
-**Enterprise-Grade RAG System deployed via Terraform on AWS & Databricks.**
+**An enterprise-grade RAG architecture deployed on AWS and Databricks using Terraform for infrastructure provisioning.**
 
 
 ### 1. System Architecture
