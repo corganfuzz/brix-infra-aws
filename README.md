@@ -4,7 +4,7 @@ A unified GenAI MLOps platform using Databricks and AWS Bedrock to power an AI M
 
 ## System Overview
 
-**An enterprise-grade RAG architecture deployed on AWS and Databricks using Terraform for infrastructure provisioning.**
+An enterprise-grade RAG architecture deployed on AWS and Databricks using Terraform for infrastructure provisioning.
 
 
 ### 1. System Architecture
@@ -38,13 +38,13 @@ graph LR
 ```
 
 ### Architectural Evolution
-This platform represents a significant architectural upgrade from a standard Multi-Agent Amazon Bedrock implementation. By integrating **Databricks**, the system transitions from a basic retrieval chatbot to a robust **MLOps Platform** featuring:
+This platform represents a significant architectural upgrade from a standard Multi-Agent Amazon Bedrock implementation. By integrating Databricks, the system transitions from a basic retrieval chatbot to a robust MLOps Platform featuring:
 
 1.  **Industrial Data Engineering**: Replacing ad-hoc S3 uploads with Databricks Auto Loader for scalable, reliable PDF ingestion.
 
 2.  **Governed Knowledge**: Utilizing Databricks Unity Catalog and Delta Lake to ensure data quality and lineage before it reaches the vector store.
 
-3.  **Advanced Evaluation**: Implementing MLflow to systematically benchmark agent performance against "Golden Datasets," moving beyond manual testing.
+3.  **Advanced Evaluation**: Implementing MLflow to systematically benchmark agent performance against Golden Datasets, moving beyond manual testing.
 
 4.  **Hybrid Intelligence**: Orchestrating a synergy between AWS Bedrock Agents (Logic/Retrieval) and SageMaker endpoints (Specialized Inference).
 
@@ -88,22 +88,65 @@ The infrastructure is provisioned using the **Terraform Main Module** pattern. T
 *   **Atomic Updates**: Changes to the core "Umbrella" module propagate consistently across all environments.
 *   **Simplified State Management**: Each environment maintains an isolated state file backend.
 
-## Repository Structure
+### Execution & Environment Management
+
+This project utilizes a map-driven Multi-VPC orchestration pattern.
+
+#### Architecture: Facts vs. Wiring
+The design separates static configuration from automated resource composition.
+
+1. **Environment Data (locals.tf)**: Defines "Facts" that only the environment knows (VPC CIDR, Subnet map, AZs, and Public/Private status).
+2. **Orchestration Logic (infrastructure/main.tf)**: Functions as the "Wiring." It automatically calculates dependencies on the fly, eliminating redundant manual configuration.
+
+##### Automated Derived Logic
+The orchestrator dynamically calculates the following:
+
+- **Gateways**: Instead of manual mapping, the system automatically provisions a NAT Gateway for every public subnet.
+```hcl
+nat_gateway_config = {
+  for k, v in each.value.subnets : k => module.subnets[each.key].subnet_ids[k] 
+  if v.public
+}
+```
+
+- **AZ-Aware Routing**: Private subnets are automatically mapped to the NAT Gateway residing in their same Availability Zone.
+```hcl
+nat_gateway_id = [
+  for pk, pv in each.value.subnets : pk 
+  if pv.public && pv.availability_zone == v.availability_zone
+][0]
+```
+
+This approach allows for horizontal AZ scaling by updating only the `locals.tf` data.
+
+#### Deployment Workflow
+Use the `-chdir` option to manage environments from the root directory:
+
+```bash
+# Initialize
+terraform -chdir=env/dev init
+
+# Plan and Apply
+terraform -chdir=env/dev plan
+terraform -chdir=env/dev apply
+```
+
+#### Project Structure
+
 ```text
 .
 ├── env/
-│   ├── dev/                
-│   ├── staging/            
-│   └── prod/               
-├── main/                   # Umbrella Module
-├── modules/                
-│   ├── networking/         # VPC, Multi-AZ Networking
-│   ├── storage/         
-│   ├── databricks/         # Workspace, Clusters, Jobs
-│   ├── bedrock/            # Agents, Action Groups, KB
-│   └── sagemaker/          # Custom Inference Endpoints
+│   ├── dev/
+│   ├── staging/
+│   └── prod/
+├── infrastructure/
+├── modules/
+│   └── networking/
+│       ├── gateways/
+│       ├── routing/
+│       ├── subnets/
+│       └── vpc/
 └── scripts/
-    └── setup_remote_state.sh # CLI Script for S3 Backend
 ```
 
 ## Technology Stack
