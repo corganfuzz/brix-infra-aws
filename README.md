@@ -149,6 +149,45 @@ terraform -chdir=env/dev apply
 └── scripts/
 ```
 
+#### Deployment Verification
+The networking infrastructure is verified through live AWS metadata inspection to ensure correct traffic routing.
+
+**1. Private-to-NAT Routing**
+Verify that the private subnet is correctly directed to the NAT Gateway:
+```bash
+aws ec2 describe-route-tables \
+  --filters "Name=association.subnet-id,Values=[PRIVATE_SUBNET_ID]" \
+  --query 'RouteTables[0].Routes[?DestinationCidrBlock==`0.0.0.0/0`]'
+```
+*Expected Output:*
+```json
+[
+    {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "NatGatewayId": "nat-[...]",
+        "State": "active"
+    }
+]
+```
+
+**2. Public-to-Internet Routing**
+Verify that the NAT Gateway resides in a subnet with a path to the Internet Gateway:
+```bash
+aws ec2 describe-route-tables \
+  --filters "Name=association.subnet-id,Values=[PUBLIC_SUBNET_ID]" \
+  --query 'RouteTables[0].Routes[?DestinationCidrBlock==`0.0.0.0/0`]'
+```
+*Expected Output:*
+```json
+[
+    {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": "igw-[...]",
+        "State": "active"
+    }
+]
+```
+
 ## Technology Stack
 
 | Component | Technology | Primary Function |
