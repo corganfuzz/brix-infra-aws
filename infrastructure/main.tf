@@ -46,3 +46,20 @@ module "routing" {
     } if !v.public
   }
 }
+
+module "storage" {
+  source = "../modules/storage"
+
+  project_name = var.project_name
+  environment  = var.environment
+  s3_buckets   = var.s3_buckets
+}
+
+module "iam" {
+  source = "../modules/iam"
+
+  project_name        = var.project_name
+  environment         = var.environment
+  storage_bucket_arns = module.storage.bucket_arns
+  iam_roles           = var.iam_roles
+}

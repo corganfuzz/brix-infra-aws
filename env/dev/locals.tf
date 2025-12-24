@@ -11,4 +11,18 @@ locals {
       }
     }
   }
+
+  s3_buckets = {
+    "raw"       = { versioning = true }
+    "bronze"    = { versioning = true }
+    "silver"    = { versioning = true }
+    "gold"      = { versioning = true }
+    "kb-source" = { versioning = true }
+  }
+
+  iam_roles = {
+    "bedrock-agent" = { trust_service = "bedrock.amazonaws.com" }
+    "bedrock-kb"    = { trust_service = "bedrock.amazonaws.com" }
+    "databricks"    = { trust_service = "arn:aws:iam::414351767826:root" }
+  }
 }

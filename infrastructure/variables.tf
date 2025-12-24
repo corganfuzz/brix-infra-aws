@@ -12,3 +12,17 @@ variable "vpcs" {
     }))
   }))
 }
+
+variable "s3_buckets" {
+  description = "Map of S3 bucket configurations"
+  type = map(object({
+    versioning = bool
+  }))
+}
+
+variable "iam_roles" {
+  description = "Map of IAM role configurations"
+  type = map(object({
+    trust_service = string
+  }))
+}
