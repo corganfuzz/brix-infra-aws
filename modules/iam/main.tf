@@ -62,3 +62,9 @@ resource "aws_iam_role_policy" "databricks_s3_access" {
     ]
   })
 }
+
+resource "aws_iam_instance_profile" "databricks" {
+  count = contains(keys(var.iam_roles), "databricks") ? 1 : 0
+  name  = "${var.project_name}-${var.environment}-databricks-profile"
+  role  = aws_iam_role.this["databricks"].name
+}

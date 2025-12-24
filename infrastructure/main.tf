@@ -1,3 +1,11 @@
+# terraform {
+#   required_providers {
+#     databricks = {
+#       source = "databricks/databricks"
+#     }
+#   }
+# }
+
 module "vpc" {
   for_each = var.vpcs
   source   = "../modules/networking/vpc"
@@ -63,3 +71,21 @@ module "iam" {
   storage_bucket_arns = module.storage.bucket_arns
   iam_roles           = var.iam_roles
 }
+
+# provider "databricks" {
+#   host  = var.databricks_host
+#   token = var.databricks_token
+# }
+
+# module "databricks" {
+#   source = "../modules/databricks"
+
+#   project_name                    = var.project_name
+#   environment                     = var.environment
+#   databricks_instance_profile_arn = module.iam.databricks_instance_profile_arn
+#   s3_buckets                      = module.storage.bucket_names
+
+#   providers = {
+#     databricks = databricks
+#   }
+# }
