@@ -1,3 +1,5 @@
+data "aws_caller_identity" "current" {}
+
 # Generic Role Creation
 resource "aws_iam_role" "this" {
   for_each = var.iam_roles
@@ -7,9 +9,15 @@ resource "aws_iam_role" "this" {
     Version = "2012-10-17"
     Statement = [
       {
-        Action    = "sts:AssumeRole"
-        Effect    = "Allow"
-        Principal = length(regexall("\\.amazonaws\\.com$", each.value.trust_service)) > 0 ? { Service = each.value.trust_service } : { AWS = each.value.trust_service }
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = each.value.trust_service == "self" ? {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+          } : length(regexall("\\.amazonaws\\.com$", each.value.trust_service)) > 0 ? {
+          Service = each.value.trust_service
+          } : {
+          AWS = each.value.trust_service
+        }
       }
     ]
   })
@@ -18,7 +26,7 @@ resource "aws_iam_role" "this" {
 # Bedrock KB Policy
 resource "aws_iam_role_policy" "bedrock_kb_s3_access" {
   count = contains(keys(var.iam_roles), "bedrock-kb") ? 1 : 0
-  name  = "BedrockKBS3Access"
+  name  = "${var.project_name}-${var.environment}-bedrock-kb-s3-policy"
   role  = aws_iam_role.this["bedrock-kb"].id
 
   policy = jsonencode({
@@ -39,7 +47,7 @@ resource "aws_iam_role_policy" "bedrock_kb_s3_access" {
 # Databricks S3 Access Policy
 resource "aws_iam_role_policy" "databricks_s3_access" {
   count = contains(keys(var.iam_roles), "databricks") ? 1 : 0
-  name  = "DatabricksS3Access"
+  name  = "${var.project_name}-${var.environment}-databricks-s3-policy"
   role  = aws_iam_role.this["databricks"].id
 
   policy = jsonencode({

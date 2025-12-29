@@ -19,3 +19,5 @@ tfplan
 
 # OS files
 .DS_Store
+
+DATABRICKS_ARCHITECTURE.md

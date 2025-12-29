@@ -20,12 +20,14 @@ locals {
     "kb-source" = { versioning = true }
   }
 
+  aws_region = "us-east-1"
+
   iam_roles = {
     "bedrock-agent" = { trust_service = "bedrock.amazonaws.com" }
     "bedrock-kb"    = { trust_service = "bedrock.amazonaws.com" }
-    "databricks"    = { trust_service = "arn:aws:iam::414351767826:root" }
+    "databricks"    = { trust_service = "self" }
   }
 
-  databricks_host  = "https://adb-xxx.cloud.databricks.com" # Placeholder for Trial URL
-  databricks_token = "dapi..."                              # Placeholder for PAT Token
+  databricks_host  = "https://adb-xxx.cloud.databricks.com"
+  databricks_token = "pattoken..."
 }

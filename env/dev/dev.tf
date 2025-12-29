@@ -3,6 +3,7 @@ module "infrastructure" {
 
   project_name     = local.project_name
   environment      = local.environment
+  aws_region       = local.aws_region
   vpcs             = local.vpcs
   s3_buckets       = local.s3_buckets
   iam_roles        = local.iam_roles
