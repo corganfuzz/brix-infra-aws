@@ -7,5 +7,5 @@ output "databricks_role_arn" {
 }
 
 output "databricks_instance_profile_arn" {
-  value = aws_iam_instance_profile.databricks[0].arn
+  value = try(aws_iam_instance_profile.databricks["databricks"].arn, null)
 }

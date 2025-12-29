@@ -25,9 +25,9 @@ resource "aws_iam_role" "this" {
 
 # Bedrock KB Policy
 resource "aws_iam_role_policy" "bedrock_kb_s3_access" {
-  count = contains(keys(var.iam_roles), "bedrock-kb") ? 1 : 0
-  name  = "${var.project_name}-${var.environment}-bedrock-kb-s3-policy"
-  role  = aws_iam_role.this["bedrock-kb"].id
+  for_each = contains(keys(var.iam_roles), "bedrock-kb") ? { "bedrock-kb" = var.iam_roles["bedrock-kb"] } : {}
+  name     = "BedrockKBS3Access"
+  role     = aws_iam_role.this["bedrock-kb"].id
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -46,9 +46,9 @@ resource "aws_iam_role_policy" "bedrock_kb_s3_access" {
 
 # Databricks S3 Access Policy
 resource "aws_iam_role_policy" "databricks_s3_access" {
-  count = contains(keys(var.iam_roles), "databricks") ? 1 : 0
-  name  = "${var.project_name}-${var.environment}-databricks-s3-policy"
-  role  = aws_iam_role.this["databricks"].id
+  for_each = contains(keys(var.iam_roles), "databricks") ? { "databricks" = var.iam_roles["databricks"] } : {}
+  name     = "DatabricksS3Access"
+  role     = aws_iam_role.this["databricks"].id
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -72,7 +72,7 @@ resource "aws_iam_role_policy" "databricks_s3_access" {
 }
 
 resource "aws_iam_instance_profile" "databricks" {
-  count = contains(keys(var.iam_roles), "databricks") ? 1 : 0
-  name  = "${var.project_name}-${var.environment}-databricks-profile"
-  role  = aws_iam_role.this["databricks"].name
+  for_each = contains(keys(var.iam_roles), "databricks") ? { "databricks" = var.iam_roles["databricks"] } : {}
+  name     = "${var.project_name}-${var.environment}-databricks-profile"
+  role     = aws_iam_role.this["databricks"].name
 }
