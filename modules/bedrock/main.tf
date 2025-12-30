@@ -83,7 +83,7 @@ resource "aws_bedrockagent_agent" "this" {
   agent_name              = "${var.project_name}-${var.environment}-agent"
   agent_resource_role_arn = var.bedrock_agent_role_arn
   foundation_model        = "meta.llama3-70b-instruct-v1:0"
-  instruction             = file("${path.module}/src/agent-instructions.txt")
+  instruction             = file("${path.module}/src/agent.txt")
 }
 
 resource "aws_bedrockagent_agent_action_group" "fred" {
