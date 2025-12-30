@@ -3,9 +3,9 @@ output "role_arns" {
 }
 
 output "databricks_role_arn" {
-  value = try(aws_iam_role.databricks[0].arn, null)
+  value = try(aws_iam_role.databricks["databricks"].arn, null)
 }
 
 output "databricks_instance_profile_arn" {
-  value = try(aws_iam_instance_profile.databricks[0].arn, null)
+  value = try(aws_iam_instance_profile.databricks["databricks"].arn, null)
 }

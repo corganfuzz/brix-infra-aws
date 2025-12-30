@@ -25,8 +25,8 @@ resource "aws_iam_role" "this" {
 
 # Dedicated Databricks Role with composite trust policy
 resource "aws_iam_role" "databricks" {
-  count = contains(keys(var.iam_roles), "databricks") ? 1 : 0
-  name  = "${var.project_name}-${var.environment}-databricks-role"
+  for_each = contains(keys(var.iam_roles), "databricks") ? { "databricks" = var.iam_roles["databricks"] } : {}
+  name     = "${var.project_name}-${var.environment}-databricks-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -79,9 +79,9 @@ resource "aws_iam_role_policy" "bedrock_kb_s3_access" {
 
 # Databricks S3 Access Policy
 resource "aws_iam_role_policy" "databricks_s3_access" {
-  count = contains(keys(var.iam_roles), "databricks") ? 1 : 0
-  name  = "DatabricksS3Access"
-  role  = aws_iam_role.databricks[0].id
+  for_each = contains(keys(var.iam_roles), "databricks") ? { "databricks" = var.iam_roles["databricks"] } : {}
+  name     = "DatabricksS3Access"
+  role     = aws_iam_role.databricks["databricks"].id
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -105,9 +105,9 @@ resource "aws_iam_role_policy" "databricks_s3_access" {
 }
 
 resource "aws_iam_instance_profile" "databricks" {
-  count = contains(keys(var.iam_roles), "databricks") ? 1 : 0
-  name  = "${var.project_name}-${var.environment}-databricks-profile"
-  role  = aws_iam_role.databricks[0].name
+  for_each = contains(keys(var.iam_roles), "databricks") ? { "databricks" = var.iam_roles["databricks"] } : {}
+  name     = "${var.project_name}-${var.environment}-databricks-profile"
+  role     = aws_iam_role.databricks["databricks"].name
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_basic" {
