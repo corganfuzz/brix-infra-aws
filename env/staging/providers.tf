@@ -1,5 +1,5 @@
 provider "aws" {
-  region = "us-east-1"
+  region = local.aws_region
 }
 
 terraform {
@@ -9,10 +9,18 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
+    databricks = {
+      source = "databricks/databricks"
+    }
   }
   backend "s3" {
     bucket = "mortgage-xpert-tfstate-446311000231"
     key    = "staging/terraform.tfstate"
     region = "us-east-1"
   }
+}
+
+provider "databricks" {
+  host  = var.databricks_host
+  token = var.databricks_token
 }

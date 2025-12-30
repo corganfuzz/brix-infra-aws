@@ -54,3 +54,8 @@ variable "lambda_config" {
   description = "Configuration for Lambda functions"
   type        = any
 }
+
+variable "databricks_config" {
+  description = "Configuration for Databricks catalog and compute"
+  type        = any
+}

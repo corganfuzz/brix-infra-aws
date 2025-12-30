@@ -85,6 +85,7 @@ module "databricks" {
   environment         = var.environment
   databricks_role_arn = module.iam.databricks_role_arn
   s3_buckets          = module.storage.bucket_names
+  databricks_config   = var.databricks_config
 
   providers = {
     databricks = databricks
