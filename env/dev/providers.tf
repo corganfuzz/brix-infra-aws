@@ -9,9 +9,9 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
-    #    databricks = {
-    #      source = "databricks/databricks"
-    #    }
+    databricks = {
+      source = "databricks/databricks"
+    }
   }
   backend "s3" {
     bucket = "mortgage-xpert-tfstate-446311000231"

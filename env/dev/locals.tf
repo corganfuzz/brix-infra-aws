@@ -25,9 +25,6 @@ locals {
   iam_roles = {
     "bedrock-agent" = { trust_service = "bedrock.amazonaws.com" }
     "bedrock-kb"    = { trust_service = "bedrock.amazonaws.com" }
-    "databricks"    = { trust_service = "self" }
+    "databricks"    = { trust_service = "ec2.amazonaws.com" }
   }
-
-  databricks_host  = "https://adb-xxx.cloud.databricks.com"
-  databricks_token = "pattoken..."
 }
