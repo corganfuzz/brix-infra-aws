@@ -100,6 +100,7 @@ module "lambda" {
   aws_region      = var.aws_region
   fred_api_key    = var.fred_api_key
   lambda_role_arn = module.iam.role_arns["fred-fetcher"]
+  lambda_config   = var.lambda_config
 }
 
 module "bedrock" {
@@ -113,5 +114,6 @@ module "bedrock" {
   lambda_function_arn    = module.lambda.function_arn
   bedrock_kb_role_arn    = module.iam.role_arns["bedrock-kb"]
   bedrock_agent_role_arn = module.iam.role_arns["bedrock-agent"]
+  bedrock_config         = var.bedrock_config
 }
 */

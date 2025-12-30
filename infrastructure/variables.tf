@@ -44,3 +44,13 @@ variable "fred_api_key" {
   type        = string
   sensitive   = true
 }
+
+variable "bedrock_config" {
+  description = "Configuration for Bedrock Knowledge Base and Agent"
+  type        = any
+}
+
+variable "lambda_config" {
+  description = "Configuration for Lambda functions"
+  type        = any
+}

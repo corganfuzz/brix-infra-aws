@@ -48,7 +48,7 @@ resource "aws_bedrockagent_knowledge_base" "this" {
   knowledge_base_configuration {
     type = "VECTOR"
     vector_knowledge_base_configuration {
-      embedding_model_arn = "arn:aws:bedrock:${var.aws_region}::foundation-model/amazon.titan-embed-text-v2:0"
+      embedding_model_arn = var.bedrock_config.embedding_model_arn
     }
   }
 
@@ -56,7 +56,7 @@ resource "aws_bedrockagent_knowledge_base" "this" {
     type = "OPENSEARCH_SERVERLESS"
     opensearch_serverless_configuration {
       collection_arn    = aws_opensearchserverless_collection.this.arn
-      vector_index_name = "bedrock-knowledge-base-default-index"
+      vector_index_name = var.bedrock_config.vector_index_name
       field_mapping {
         vector_field   = "bedrock-knowledge-base-default-vector"
         text_field     = "AMAZON_BEDROCK_TEXT_CHUNK"
@@ -82,7 +82,7 @@ resource "aws_bedrockagent_data_source" "this" {
 resource "aws_bedrockagent_agent" "this" {
   agent_name              = "${var.project_name}-${var.environment}-agent"
   agent_resource_role_arn = var.bedrock_agent_role_arn
-  foundation_model        = "meta.llama3-70b-instruct-v1:0"
+  foundation_model        = var.bedrock_config.foundation_model
   instruction             = file("${path.module}/src/agent.txt")
 }
 
@@ -108,7 +108,7 @@ resource "aws_bedrockagent_agent_action_group" "fred" {
 
 resource "aws_bedrockagent_agent_knowledge_base_association" "this" {
   agent_id             = aws_bedrockagent_agent.this.id
-  agent_version        = "DRAFT"
+  agent_version        = var.bedrock_config.agent_version
   knowledge_base_id    = aws_bedrockagent_knowledge_base.this.id
   description          = "Access to mortgage guidelines and dictionaries."
   knowledge_base_state = "ENABLED"

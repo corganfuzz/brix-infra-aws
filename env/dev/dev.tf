@@ -10,6 +10,8 @@ module "infrastructure" {
   databricks_host  = var.databricks_host
   databricks_token = var.databricks_token
   fred_api_key     = var.fred_api_key
+  bedrock_config   = local.bedrock_config
+  lambda_config    = local.lambda_config
 
   providers = {
     aws        = aws

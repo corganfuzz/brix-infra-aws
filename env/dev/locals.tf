@@ -28,4 +28,18 @@ locals {
     "databricks"    = { trust_service = "ec2.amazonaws.com" }
     "fred-fetcher"  = { trust_service = "lambda.amazonaws.com" }
   }
+
+  bedrock_config = {
+    embedding_model_arn = "arn:aws:bedrock:us-east-1::foundation-model/amazon.titan-embed-text-v2:0"
+    foundation_model    = "meta.llama3-70b-instruct-v1:0"
+    vector_index_name   = "bedrock-knowledge-base-default-index"
+    agent_version       = "DRAFT"
+  }
+
+  lambda_config = {
+    runtime     = "python3.11"
+    handler     = "fred_fetcher.handler"
+    timeout     = 10
+    memory_size = 128
+  }
 }

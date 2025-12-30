@@ -8,8 +8,10 @@ resource "aws_lambda_function" "this" {
   filename         = data.archive_file.zip.output_path
   function_name    = "${var.project_name}-${var.environment}-fred-fetcher"
   role             = var.lambda_role_arn
-  handler          = "fred_fetcher.handler"
-  runtime          = "python3.11"
+  handler          = var.lambda_config.handler
+  runtime          = var.lambda_config.runtime
+  timeout          = var.lambda_config.timeout
+  memory_size      = var.lambda_config.memory_size
   source_code_hash = data.archive_file.zip.output_base64sha256
 
   environment {
