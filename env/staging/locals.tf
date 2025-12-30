@@ -2,9 +2,10 @@ locals {
   # ==============================================
   # Project Settings
   # ==============================================
-  project_name = "mortgage-xpert"
-  environment  = "staging"
-  aws_region   = "us-east-1"
+  project_name     = "mortgage-xpert"
+  environment      = "staging"
+  aws_region       = "us-east-1"
+  enable_ai_engine = false
 
   # ==============================================
   # Networking Configuration

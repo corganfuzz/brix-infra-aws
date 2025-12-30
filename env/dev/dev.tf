@@ -5,6 +5,7 @@ module "infrastructure" {
   environment       = local.environment
   aws_region        = local.aws_region
   vpcs              = local.vpcs
+  enable_ai_engine  = local.enable_ai_engine
   s3_buckets        = local.s3_buckets
   iam_roles         = local.iam_roles
   databricks_host   = var.databricks_host

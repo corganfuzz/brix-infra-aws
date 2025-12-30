@@ -12,6 +12,9 @@ terraform {
     databricks = {
       source = "databricks/databricks"
     }
+    archive = {
+      source = "hashicorp/archive"
+    }
   }
   backend "s3" {
     bucket = "mortgage-xpert-tfstate-446311000231"

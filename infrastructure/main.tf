@@ -92,8 +92,8 @@ module "databricks" {
   }
 }
 
-/*
 module "lambda" {
+  count  = var.enable_ai_engine ? 1 : 0
   source = "../modules/lambda"
 
   project_name    = var.project_name
@@ -105,6 +105,7 @@ module "lambda" {
 }
 
 module "bedrock" {
+  count  = var.enable_ai_engine ? 1 : 0
   source = "../modules/bedrock"
 
   project_name           = var.project_name
@@ -112,9 +113,8 @@ module "bedrock" {
   aws_region             = var.aws_region
   kb_s3_bucket_arn       = module.storage.bucket_arns["kb-source"]
   kb_s3_bucket_name      = module.storage.bucket_names["kb-source"]
-  lambda_function_arn    = module.lambda.function_arn
+  lambda_function_arn    = try(module.lambda[0].function_arn, null)
   bedrock_kb_role_arn    = module.iam.role_arns["bedrock-kb"]
   bedrock_agent_role_arn = module.iam.role_arns["bedrock-agent"]
   bedrock_config         = var.bedrock_config
 }
-*/

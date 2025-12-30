@@ -1,5 +1,9 @@
 variable "project_name" { type = string }
 variable "environment" { type = string }
+variable "enable_ai_engine" {
+  type    = bool
+  default = false
+}
 variable "aws_region" { type = string }
 
 variable "vpcs" {
