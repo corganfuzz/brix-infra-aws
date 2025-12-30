@@ -1,5 +1,9 @@
 terraform {
   required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
     databricks = {
       source = "databricks/databricks"
     }
@@ -72,10 +76,7 @@ module "iam" {
   iam_roles           = var.iam_roles
 }
 
-provider "databricks" {
-  host  = var.databricks_host
-  token = var.databricks_token
-}
+
 
 module "databricks" {
   source = "../modules/databricks"
@@ -89,3 +90,28 @@ module "databricks" {
     databricks = databricks
   }
 }
+
+/*
+module "lambda" {
+  source = "../modules/lambda"
+
+  project_name    = var.project_name
+  environment     = var.environment
+  aws_region      = var.aws_region
+  fred_api_key    = var.fred_api_key
+  lambda_role_arn = module.iam.role_arns["fred-fetcher"]
+}
+
+module "bedrock" {
+  source = "../modules/bedrock"
+
+  project_name           = var.project_name
+  environment            = var.environment
+  aws_region             = var.aws_region
+  kb_s3_bucket_arn       = module.storage.bucket_arns["kb-source"]
+  kb_s3_bucket_name      = module.storage.bucket_names["kb-source"]
+  lambda_function_arn    = module.lambda.function_arn
+  bedrock_kb_role_arn    = module.iam.role_arns["bedrock-kb"]
+  bedrock_agent_role_arn = module.iam.role_arns["bedrock-agent"]
+}
+*/

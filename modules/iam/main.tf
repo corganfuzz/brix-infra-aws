@@ -109,3 +109,9 @@ resource "aws_iam_instance_profile" "databricks" {
   name  = "${var.project_name}-${var.environment}-databricks-profile"
   role  = aws_iam_role.databricks[0].name
 }
+
+resource "aws_iam_role_policy_attachment" "lambda_basic" {
+  for_each   = contains(keys(var.iam_roles), "fred-fetcher") ? { "fred-fetcher" = var.iam_roles["fred-fetcher"] } : {}
+  role       = aws_iam_role.this["fred-fetcher"].name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}

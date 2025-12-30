@@ -19,3 +19,8 @@ terraform {
     region = "us-east-1"
   }
 }
+
+provider "databricks" {
+  host  = var.databricks_host
+  token = var.databricks_token
+}

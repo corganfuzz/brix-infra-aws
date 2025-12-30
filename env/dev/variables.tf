@@ -8,3 +8,9 @@ variable "databricks_token" {
   type        = string
   sensitive   = true
 }
+
+variable "fred_api_key" {
+  description = "FRED API Key for mortgage rates"
+  type        = string
+  sensitive   = true
+}

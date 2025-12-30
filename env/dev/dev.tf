@@ -9,4 +9,10 @@ module "infrastructure" {
   iam_roles        = local.iam_roles
   databricks_host  = var.databricks_host
   databricks_token = var.databricks_token
+  fred_api_key     = var.fred_api_key
+
+  providers = {
+    aws        = aws
+    databricks = databricks
+  }
 }

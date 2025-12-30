@@ -26,5 +26,6 @@ locals {
     "bedrock-agent" = { trust_service = "bedrock.amazonaws.com" }
     "bedrock-kb"    = { trust_service = "bedrock.amazonaws.com" }
     "databricks"    = { trust_service = "ec2.amazonaws.com" }
+    "fred-fetcher"  = { trust_service = "lambda.amazonaws.com" }
   }
 }
