@@ -28,6 +28,7 @@ resource "databricks_schema" "layers" {
   for_each     = toset(var.databricks_config.schemas)
   catalog_name = databricks_catalog.mortgage.name
   name         = each.value
+  storage_root = "s3://${var.s3_buckets[each.value]}/"
   comment      = "Data layer: ${each.value}"
 }
 

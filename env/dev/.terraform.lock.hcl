@@ -4,6 +4,7 @@
 provider "registry.terraform.io/databricks/databricks" {
   version = "1.100.0"
   hashes = [
+    "h1:F+2Au7U49fqXjoyCdKhFum3bv1UdfCYhCVwJiohimxA=",
     "h1:eVg5tTtbB3XE9HFZfRF3Ht3LXrWZZUCGsYNF+yaq2Lo=",
     "zh:1ea639cb003dc7ef3d41d94960ad3ce426c372a1905d11235aada3a2421c84c0",
     "zh:26a51dd10c7d8b0b880f6d0254bc8d64114f5923a1143c47cc91fe53d00a607f",
@@ -17,6 +18,7 @@ provider "registry.terraform.io/databricks/databricks" {
 provider "registry.terraform.io/hashicorp/archive" {
   version = "2.7.1"
   hashes = [
+    "h1:62VrkalDPMKB9zerCBS4iKTbvxejwnAWn/XXYZZQWD4=",
     "h1:A7EnRBVm4h9ryO9LwxYnKr4fy7ExPMwD5a1DsY7m1Y0=",
     "zh:19881bb356a4a656a865f48aee70c0b8a03c35951b7799b6113883f67f196e8e",
     "zh:2fcfbf6318dd514863268b09bbe19bfc958339c636bcbcc3664b45f2b8bf5cc6",
@@ -38,6 +40,7 @@ provider "registry.terraform.io/hashicorp/aws" {
   constraints = "~> 5.0"
   hashes = [
     "h1:Ijt7pOlB7Tr7maGQIqtsLFbl7pSMIj06TVdkoSBcYOw=",
+    "h1:edXOJWE4ORX8Fm+dpVpICzMZJat4AX0VRCAy/xkcOc0=",
     "zh:054b8dd49f0549c9a7cc27d159e45327b7b65cf404da5e5a20da154b90b8a644",
     "zh:0b97bf8d5e03d15d83cc40b0530a1f84b459354939ba6f135a0086c20ebbe6b2",
     "zh:1589a2266af699cbd5d80737a0fe02e54ec9cf2ca54e7e00ac51c7359056f274",
@@ -59,6 +62,7 @@ provider "registry.terraform.io/hashicorp/aws" {
 provider "registry.terraform.io/hashicorp/time" {
   version = "0.13.1"
   hashes = [
+    "h1:+W+DMrVoVnoXo3f3M4W+OpZbkCrUn6PnqDF33D2Cuf0=",
     "h1:ZT5ppCNIModqk3iOkVt5my8b8yBHmDpl663JtXAIRqM=",
     "zh:02cb9aab1002f0f2a94a4f85acec8893297dc75915f7404c165983f720a54b74",
     "zh:04429b2b31a492d19e5ecf999b116d396dac0b24bba0d0fb19ecaefe193fdb8f",
@@ -79,6 +83,7 @@ provider "registry.terraform.io/opensearch-project/opensearch" {
   version     = "2.3.2"
   constraints = "~> 2.0"
   hashes = [
+    "h1:5pqppqatSLDNMbi4GJ14ixxT35wt6Onp3Kjo1ya/aac=",
     "h1:rWn3RbDPD9Mbz69VBBMpfLJS65hvWi9jyJVL4Sm8o/s=",
     "zh:0566cc7ab32c1f49a5dbeec6ed117079adfab164e293a9a1d24247cb8cae2228",
     "zh:237de1f445d8789da5df0e205588d40955d30767413c00351e6c1dc68348f588",
