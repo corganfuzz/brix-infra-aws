@@ -1,7 +1,7 @@
 data "archive_file" "zip" {
   type        = "zip"
-  source_file = "${path.module}/src/fred_fetcher.py"
-  output_path = "${path.module}/src/fred_fetcher.zip"
+  source_dir  = "${path.module}/src"
+  output_path = "${path.module}/builds/fred_fetcher.zip"
 }
 
 resource "aws_lambda_function" "this" {
