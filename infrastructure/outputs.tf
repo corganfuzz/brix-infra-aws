@@ -24,3 +24,7 @@ output "bedrock_kb_id" {
 output "bedrock_data_source_id" {
   value = try(module.bedrock["enabled"].data_source_id, "N/A - Module Disabled")
 }
+
+output "bedrock_collection_endpoint" {
+  value = try(module.bedrock["enabled"].collection_endpoint, "")
+}

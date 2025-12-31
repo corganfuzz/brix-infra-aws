@@ -13,3 +13,7 @@ output "data_source_id" {
 output "oss_collection_arn" {
   value = aws_opensearchserverless_collection.this.arn
 }
+
+output "collection_endpoint" {
+  value = aws_opensearchserverless_collection.this.collection_endpoint
+}

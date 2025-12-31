@@ -7,6 +7,9 @@ terraform {
     databricks = {
       source = "databricks/databricks"
     }
+    time = {
+      source = "hashicorp/time"
+    }
   }
 }
 
@@ -76,10 +79,15 @@ module "iam" {
   iam_roles           = var.iam_roles
 }
 
+resource "time_sleep" "wait_60_seconds" {
+  depends_on = [module.iam]
 
+  create_duration = "60s"
+}
 
 module "databricks" {
-  source = "../modules/databricks"
+  depends_on = [time_sleep.wait_60_seconds]
+  source     = "../modules/databricks"
 
   project_name        = var.project_name
   environment         = var.environment
@@ -115,6 +123,7 @@ module "bedrock" {
   kb_s3_bucket_name      = module.storage.bucket_names["kb-source"]
   lambda_function_arn    = try(module.lambda["enabled"].function_arn, null)
   bedrock_kb_role_arn    = module.iam.role_arns["bedrock-kb"]
+  bedrock_kb_role_name   = module.iam.role_names["bedrock-kb"]
   bedrock_agent_role_arn = module.iam.role_arns["bedrock-agent"]
   bedrock_config         = var.bedrock_config
 }

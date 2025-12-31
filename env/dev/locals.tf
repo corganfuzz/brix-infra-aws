@@ -5,7 +5,7 @@ locals {
   project_name     = "mortgage-xpert"
   environment      = "dev"
   aws_region       = "us-east-1"
-  enable_ai_engine = false
+  enable_ai_engine = true
 
   # ==============================================
   # Networking Configuration

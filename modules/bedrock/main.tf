@@ -1,6 +1,8 @@
 # The Vector Store
+data "aws_caller_identity" "current" {}
+
 resource "aws_opensearchserverless_security_policy" "network" {
-  name = "${var.project_name}-${var.environment}-network-policy"
+  name = "${var.project_name}-${var.environment}-oss-net"
   type = "network"
   policy = jsonencode([
     {
@@ -21,7 +23,7 @@ resource "aws_opensearchserverless_security_policy" "network" {
 }
 
 resource "aws_opensearchserverless_security_policy" "encryption" {
-  name = "${var.project_name}-${var.environment}-encryption-policy"
+  name = "${var.project_name}-${var.environment}-oss-enc"
   type = "encryption"
   policy = jsonencode({
     Rules = [
@@ -34,16 +36,106 @@ resource "aws_opensearchserverless_security_policy" "encryption" {
   })
 }
 
+resource "aws_opensearchserverless_access_policy" "this" {
+  name = "${var.project_name}-${var.environment}-access"
+  type = "data"
+  policy = jsonencode([
+    {
+      Rules = [
+        {
+          ResourceType = "index"
+          Resource     = ["index/${var.project_name}-${var.environment}-collection/*"]
+          Permission = [
+            "aoss:ReadDocument",
+            "aoss:WriteDocument",
+            "aoss:CreateIndex",
+            "aoss:DeleteIndex",
+            "aoss:UpdateIndex",
+            "aoss:DescribeIndex"
+          ]
+        },
+        {
+          ResourceType = "collection"
+          Resource     = ["collection/${var.project_name}-${var.environment}-collection"]
+          Permission = [
+            "aoss:CreateCollectionItems",
+            "aoss:DeleteCollectionItems",
+            "aoss:UpdateCollectionItems",
+            "aoss:DescribeCollectionItems"
+          ]
+        }
+      ]
+      Principal = [var.bedrock_kb_role_arn, data.aws_caller_identity.current.arn]
+    }
+  ])
+}
+
+resource "aws_iam_role_policy" "oss_access" {
+  name = "${var.project_name}-${var.environment}-oss-access"
+  role = var.bedrock_kb_role_name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = "aoss:APIAccessAll"
+        Resource = aws_opensearchserverless_collection.this.arn
+      }
+    ]
+  })
+}
+
 resource "aws_opensearchserverless_collection" "this" {
   name       = "${var.project_name}-${var.environment}-collection"
   type       = "VECTORSEARCH"
   depends_on = [aws_opensearchserverless_security_policy.encryption, aws_opensearchserverless_security_policy.network]
 }
 
+resource "time_sleep" "wait_for_oss_policy" {
+  depends_on = [aws_opensearchserverless_access_policy.this, aws_iam_role_policy.oss_access]
+
+  create_duration = "60s"
+}
+
+resource "opensearch_index" "this" {
+  name               = var.bedrock_config.vector_index_name
+  number_of_shards   = 2
+  number_of_replicas = 0
+  index_knn          = true
+
+  mappings      = <<EOF
+{
+  "properties": {
+    "bedrock-knowledge-base-default-vector": {
+      "type": "knn_vector",
+      "dimension": 1024,
+      "method": {
+        "name": "hnsw",
+        "engine": "faiss",
+        "space_type": "l2"
+      }
+    },
+    "AMAZON_BEDROCK_METADATA": {
+      "type": "text",
+      "index": false
+    },
+    "AMAZON_BEDROCK_TEXT_CHUNK": {
+      "type": "text",
+      "index": true
+    }
+  }
+}
+EOF
+  force_destroy = true
+  depends_on    = [time_sleep.wait_for_oss_policy]
+}
+
 # Knowledge Base (KB)
 resource "aws_bedrockagent_knowledge_base" "this" {
-  name     = "${var.project_name}-${var.environment}-kb"
-  role_arn = var.bedrock_kb_role_arn
+  depends_on = [opensearch_index.this]
+  name       = "${var.project_name}-${var.environment}-kb"
+  role_arn   = var.bedrock_kb_role_arn
 
   knowledge_base_configuration {
     type = "VECTOR"

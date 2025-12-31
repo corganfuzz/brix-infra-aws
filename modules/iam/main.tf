@@ -115,3 +115,21 @@ resource "aws_iam_role_policy_attachment" "lambda_basic" {
   role       = aws_iam_role.this["fred-fetcher"].name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
+
+# Bedrock KB Model Access Policy
+resource "aws_iam_role_policy" "bedrock_kb_model_access" {
+  for_each = contains(keys(var.iam_roles), "bedrock-kb") ? { "bedrock-kb" = var.iam_roles["bedrock-kb"] } : {}
+  name     = "BedrockKBModelAccess"
+  role     = aws_iam_role.this["bedrock-kb"].id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action   = "bedrock:InvokeModel"
+        Effect   = "Allow"
+        Resource = "arn:aws:bedrock:us-east-1::foundation-model/amazon.titan-embed-text-v2:0"
+      }
+    ]
+  })
+}
