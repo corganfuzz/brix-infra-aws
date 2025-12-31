@@ -28,3 +28,12 @@ output "bedrock_data_source_id" {
 output "bedrock_collection_endpoint" {
   value = try(module.bedrock["enabled"].collection_endpoint, "")
 }
+
+output "api_url" {
+  value = try(module.api_gateway["enabled"].api_url, "N/A - Module Disabled")
+}
+
+output "api_key" {
+  value     = try(module.api_gateway["enabled"].api_key, "N/A - Module Disabled")
+  sensitive = true
+}

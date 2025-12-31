@@ -55,7 +55,12 @@ variable "bedrock_config" {
 }
 
 variable "lambda_config" {
-  description = "Configuration for Lambda functions"
+  description = "Configuration for Fred Fetcher Lambda"
+  type        = any
+}
+
+variable "api_proxy_config" {
+  description = "Configuration for API Proxy Lambda"
   type        = any
 }
 

@@ -100,16 +100,20 @@ module "databricks" {
   }
 }
 
-module "lambda" {
+module "lambda_fred" {
   for_each = var.enable_ai_engine ? { "enabled" = true } : {}
   source   = "../modules/lambda"
 
   project_name    = var.project_name
   environment     = var.environment
   aws_region      = var.aws_region
-  fred_api_key    = var.fred_api_key
   lambda_role_arn = module.iam.role_arns["fred-fetcher"]
-  lambda_config   = var.lambda_config
+  lambda_config   = merge(var.lambda_config, { allow_bedrock = true })
+  function_name   = "fred-fetcher"
+  source_dir      = "${path.module}/../modules/lambda/src"
+  environment_variables = {
+    FRED_API_KEY = var.fred_api_key
+  }
 }
 
 module "bedrock" {
@@ -121,9 +125,39 @@ module "bedrock" {
   aws_region             = var.aws_region
   kb_s3_bucket_arn       = module.storage.bucket_arns["kb-source"]
   kb_s3_bucket_name      = module.storage.bucket_names["kb-source"]
-  lambda_function_arn    = try(module.lambda["enabled"].function_arn, null)
+  lambda_function_arn    = try(module.lambda_fred["enabled"].function_arn, null)
   bedrock_kb_role_arn    = module.iam.role_arns["bedrock-kb"]
   bedrock_kb_role_name   = module.iam.role_names["bedrock-kb"]
   bedrock_agent_role_arn = module.iam.role_arns["bedrock-agent"]
   bedrock_config         = var.bedrock_config
 }
+
+module "lambda_api_proxy" {
+  for_each = var.enable_ai_engine ? { "enabled" = true } : {}
+  source   = "../modules/lambda"
+
+  project_name    = var.project_name
+  environment     = var.environment
+  aws_region      = var.aws_region
+  lambda_role_arn = module.iam.role_arns["api-proxy"]
+  function_name   = "api-proxy"
+  source_dir      = "${path.module}/../modules/lambda/src_proxy"
+
+  lambda_config = var.api_proxy_config
+
+  environment_variables = {
+    AGENT_ID       = module.bedrock["enabled"].agent_id
+    AGENT_ALIAS_ID = "TSTALIASID" # Default DRAFT alias
+  }
+}
+
+module "api_gateway" {
+  for_each = var.enable_ai_engine ? { "enabled" = true } : {}
+  source   = "../modules/api_gateway"
+
+  project_name         = var.project_name
+  environment          = var.environment
+  lambda_invoke_arn    = module.lambda_api_proxy["enabled"].invoke_arn
+  lambda_function_name = module.lambda_api_proxy["enabled"].function_name
+}
+

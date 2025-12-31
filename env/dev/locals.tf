@@ -39,6 +39,7 @@ locals {
     "bedrock-kb"    = { trust_service = "bedrock.amazonaws.com" }
     "databricks"    = { trust_service = "ec2.amazonaws.com" }
     "fred-fetcher"  = { trust_service = "lambda.amazonaws.com" }
+    "api-proxy"     = { trust_service = "lambda.amazonaws.com" }
   }
 
   # ==============================================
@@ -55,10 +56,19 @@ locals {
   # AWS Lambda Configuration
   # ==============================================
   lambda_config = {
-    runtime     = "python3.11"
-    handler     = "fred_fetcher.handler"
-    timeout     = 10
-    memory_size = 128
+    runtime       = "python3.11"
+    handler       = "fred_fetcher.handler"
+    timeout       = 10
+    memory_size   = 128
+    allow_bedrock = true
+  }
+
+  api_proxy_config = {
+    runtime       = "python3.11"
+    handler       = "index.lambda_handler"
+    timeout       = 30
+    memory_size   = 256
+    allow_bedrock = false
   }
 
   # ==============================================
