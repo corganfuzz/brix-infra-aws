@@ -18,9 +18,9 @@ output "iam_roles" {
 }
 
 output "bedrock_kb_id" {
-  value = try(module.bedrock[0].kb_id, "N/A - Module Disabled")
+  value = try(module.bedrock["enabled"].kb_id, "N/A - Module Disabled")
 }
 
 output "bedrock_data_source_id" {
-  value = try(module.bedrock[0].data_source_id, "N/A - Module Disabled")
+  value = try(module.bedrock["enabled"].data_source_id, "N/A - Module Disabled")
 }
