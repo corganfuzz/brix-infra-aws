@@ -47,7 +47,7 @@ locals {
   # ==============================================
   bedrock_config = {
     embedding_model_arn = "arn:aws:bedrock:us-east-1::foundation-model/amazon.titan-embed-text-v2:0"
-    foundation_model    = "meta.llama3-70b-instruct-v1:0"
+    foundation_model    = "anthropic.claude-3-haiku-20240307-v1:0"
     vector_index_name   = "bedrock-knowledge-base-default-index"
     agent_version       = "DRAFT"
   }

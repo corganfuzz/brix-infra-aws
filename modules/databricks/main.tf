@@ -16,7 +16,7 @@ resource "databricks_external_location" "buckets" {
 
 resource "databricks_catalog" "mortgage" {
   name         = var.databricks_config.catalog_name
-  storage_root = "${databricks_external_location.buckets["gold"].url}/"
+  storage_root = databricks_external_location.buckets["gold"].url
   comment      = "Main catalog for Mortgage Xpert platform"
   properties = {
     purpose = "mlops"

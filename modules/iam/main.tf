@@ -1,3 +1,11 @@
+terraform {
+  required_providers {
+    null = {
+      source = "hashicorp/null"
+    }
+  }
+}
+
 data "aws_caller_identity" "current" {}
 
 # Generic Role Creation (excludes databricks which has special trust requirements)
@@ -24,6 +32,7 @@ resource "aws_iam_role" "this" {
 }
 
 # Dedicated Databricks Role with composite trust policy
+# NOTE: Self-assume is added via null_resource AFTER creation to avoid chicken-and-egg
 resource "aws_iam_role" "databricks" {
   for_each = contains(keys(var.iam_roles), "databricks") ? { "databricks" = var.iam_roles["databricks"] } : {}
   name     = "${var.project_name}-${var.environment}-databricks-role"
@@ -45,16 +54,53 @@ resource "aws_iam_role" "databricks" {
         Condition = {
           StringEquals = { "sts:ExternalId" = "f5c1a4da-735a-402d-aa3b-303cf3885ae9" }
         }
-      },
-      {
-        Sid       = "SelfAssumeRole"
-        Action    = "sts:AssumeRole"
-        Effect    = "Allow"
-        Principal = { AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.project_name}-${var.environment}-databricks-role" }
       }
     ]
   })
+
+  lifecycle {
+    ignore_changes = [assume_role_policy] # Allow external updates via null_resource
+  }
 }
+
+# Add self-assume policy AFTER role creation (solves chicken-and-egg)
+resource "null_resource" "databricks_self_assume" {
+  for_each = aws_iam_role.databricks
+
+  triggers = {
+    role_arn = each.value.arn
+  }
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      aws iam update-assume-role-policy --role-name ${each.value.name} --policy-document '{
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Sid": "EC2AssumeRole",
+            "Effect": "Allow",
+            "Principal": {"Service": "ec2.amazonaws.com"},
+            "Action": "sts:AssumeRole"
+          },
+          {
+            "Sid": "UnityCatalogAssumeRole",
+            "Effect": "Allow",
+            "Principal": {"AWS": "arn:aws:iam::414351767826:role/unity-catalog-prod-UCMasterRole-14S5ZJVKOTYTL"},
+            "Action": "sts:AssumeRole",
+            "Condition": {"StringEquals": {"sts:ExternalId": "f5c1a4da-735a-402d-aa3b-303cf3885ae9"}}
+          },
+          {
+            "Sid": "SelfAssumeRole",
+            "Effect": "Allow",
+            "Principal": {"AWS": "${each.value.arn}"},
+            "Action": "sts:AssumeRole"
+          }
+        ]
+      }'
+    EOT
+  }
+}
+
 
 # Bedrock KB Policy
 resource "aws_iam_role_policy" "bedrock_kb_s3_access" {
@@ -116,6 +162,23 @@ resource "aws_iam_role_policy_attachment" "lambda_basic" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+resource "aws_iam_role_policy" "fred_fetcher_s3_access" {
+  for_each = contains(keys(var.iam_roles), "fred-fetcher") ? { "fred-fetcher" = var.iam_roles["fred-fetcher"] } : {}
+  name     = "FredFetcherS3Access"
+  role     = aws_iam_role.this["fred-fetcher"].id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action   = ["s3:PutObject"]
+        Effect   = "Allow"
+        Resource = ["${var.storage_bucket_arns["raw"]}/mortgage_rates/*"]
+      }
+    ]
+  })
+}
+
 resource "aws_iam_role_policy" "bedrock_kb_model_access" {
   for_each = contains(keys(var.iam_roles), "bedrock-kb") ? { "bedrock-kb" = var.iam_roles["bedrock-kb"] } : {}
   name     = "BedrockKBModelAccess"
@@ -150,6 +213,32 @@ resource "aws_iam_role_policy" "api_proxy_bedrock_access" {
     Statement = [
       {
         Action   = "bedrock:InvokeAgent"
+        Effect   = "Allow"
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "bedrock_agent_model_access" {
+  for_each = contains(keys(var.iam_roles), "bedrock-agent") ? { "bedrock-agent" = var.iam_roles["bedrock-agent"] } : {}
+  name     = "BedrockAgentModelAccess"
+  role     = aws_iam_role.this["bedrock-agent"].id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "bedrock:InvokeModel",
+          "bedrock:GetFoundationModel",
+          "bedrock:ListFoundationModels"
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+      },
+      {
+        Action   = ["bedrock:Retrieve", "bedrock:RetrieveAndGenerate"]
         Effect   = "Allow"
         Resource = "*"
       }

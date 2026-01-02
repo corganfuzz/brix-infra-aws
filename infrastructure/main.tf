@@ -112,7 +112,8 @@ module "lambda_fred" {
   function_name   = "fred-fetcher"
   source_dir      = "${path.module}/../modules/lambda/src"
   environment_variables = {
-    FRED_API_KEY = var.fred_api_key
+    FRED_API_KEY    = var.fred_api_key
+    RAW_BUCKET_NAME = module.storage.bucket_names["raw"]
   }
 }
 
