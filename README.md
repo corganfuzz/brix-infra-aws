@@ -21,7 +21,6 @@ This platform transforms an AI Mortgage Advisor into a governed data asset, wher
 To deploy and run this platform, you will need:
 - **AWS Account**: With sufficient permissions to manage Bedrock, OpenSearch Serverless, Lambda, and IAM.
 - **Databricks Account**: A standard or trial workspace. You can sign up for a **Databricks Free Trial** which provides 14 days of full platform access.
-- **Terraform CLI**: To orchestrate the cross-provider infrastructure.
 
 ---
 

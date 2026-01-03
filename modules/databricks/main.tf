@@ -11,13 +11,15 @@ resource "databricks_external_location" "buckets" {
   name            = "${var.project_name}-${var.environment}-${each.key}-location"
   url             = "s3://${each.value}"
   credential_name = databricks_storage_credential.this.name
+  force_destroy   = true
   comment         = "External location for ${each.key} bucket"
 }
 
 resource "databricks_catalog" "mortgage" {
-  name         = var.databricks_config.catalog_name
-  storage_root = databricks_external_location.buckets["gold"].url
-  comment      = "Main catalog for Mortgage Xpert platform"
+  name          = var.databricks_config.catalog_name
+  storage_root  = databricks_external_location.buckets["gold"].url
+  force_destroy = true
+  comment       = "Main catalog for Mortgage Xpert platform"
   properties = {
     purpose = "mlops"
   }
