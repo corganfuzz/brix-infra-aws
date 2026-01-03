@@ -1,201 +1,123 @@
-# Mortgage Xpert
+# Mortgage Xpert: Databricks-Native AI Infrastructure
 
-A unified GenAI MLOps platform using Databricks and AWS Bedrock to power an AI Mortgage Advisor for iOS and Android.
+A high-performance GenAI platform that leverages **Databricks** for industrial data engineering and **AWS Bedrock** for authoritative agentic orchestration. 
+
+This platform transforms an AI Mortgage Advisor into a governed data asset, where every interaction and market update is land-locked into the Databricks Lakehouse.
 
 ## Table of Contents
-1. [System Overview](#system-overview)
-2. [Architectural Evolution](#architectural-evolution)
-3. [Databricks Modern Integration](#databricks-modern-integration)
-4. [Scalable Infrastructure (Main Module Approach)](#scalable-infrastructure-main-module-approach)
-5. [Deployment Verification](#deployment-verification)
-6. [Technology Stack](#technology-stack)
+1. [Databricks-First Strategy](#databricks-first-strategy)
+2. [Modern Data Stack Architecture](#modern-data-stack-architecture)
+3. [Conversational Analytics (Databricks Ingestion)](#conversational-analytics-databricks-ingestion)
+4. [Enterprise RAG & Agency](#enterprise-rag--agency)
+5. [Scalable IaC Infrastructure](#scalable-iac-infrastructure)
+6. [Deployment & Verification](#deployment-verification)
 
 ---
 
-## System Overview
+## Databricks-First Strategy
 
-An enterprise-grade RAG architecture deployed on AWS and Databricks using Terraform for infrastructure provisioning.
+This platform moves beyond simple chatbots by treating the AI as an active participant in the **Databricks Modern Data Stack**.
 
-### System Architecture
-The following diagram illustrates the data flow and component integration across AWS and Databricks.
+*   **Industrial Data Engineering**: Uses Databricks Auto Loader to ingest mortgage guidelines and market rates.
+*   **Conversational Audit Trail**: Every user query and AI response is streamed directly into the Databricks **Bronze Layer** via S3.
+*   **Unity Catalog Governance**: Provides centralized access control, lineage, and discovery across all MLOps assets.
+*   **Serverless Efficiency**: Powered by Serverless SQL Warehouses and Notebook endpoints for zero-admin compute.
+
+---
+
+## Modern Data Stack Architecture
+
+The following diagram illustrates the symbiotic relationship between **Databricks** (the Data Intelligence Platform) and **AWS** (the Execution Layer).
 
 ```mermaid
 graph LR
-    User((User)) <-->|Query| Agent["Bedrock Agent<br>(Mortgage Advisor)"]
+    User((User)) <-->|Query| Agent["Bedrock Agent<br>(Mortgage Expert)"]
     
-    subgraph AWS_Serving ["AWS Serving Layer"]
-        Agent <--> KB[Bedrock Knowledge Base]
-        Agent <-->|Tool Call| Lambda[AWS Lambda]
-        Lambda <-->|HTTPS| FRED_API[FRED API]
-        Agent <-->|Complex Query| SM["SageMaker Endpoint<br>(Specialist Model)"]
-    end
-    
-    subgraph Databricks_Engine ["Databricks Engine"]
+    subgraph Databricks_Intelligence ["Databricks Intelligence Platform"]
         Raw[S3 Raw Bucket] -->|Auto Loader| Bronze["Delta Table<br>(Bronze)"]
         Bronze -->|Spark ETL| Silver["Delta Table<br>(Silver)"]
-        Silver -->|Chunking| JSONL[S3 KB Source]
-        
+        Silver -->|Vectorization| JSONL[S3 KB Source]
         MLflow{MLflow Tracking} -.->|Metrics| Silver
-        MLflow -.->|Evaluation| Agent
+    end
+    
+    subgraph AWS_Execution ["AWS Global Infrastructure"]
+        Agent <--> KB[Bedrock Knowledge Base]
+        Agent <-->|Tool Call| Lambda[Market Sync Tool]
+        Lambda -->|Ingest| Raw
+        Agent -->|Log Activity| Raw
     end
     
     JSONL -->|Sync| KB
     
-    style User fill:#fff,stroke:#333
+    style Databricks_Intelligence fill:#f1f8ff,stroke:#005cc5
     style Agent fill:#f9f,stroke:#333
-    style FRED_API fill:#bfb,stroke:#333
 ```
-
-### Architectural Evolution
-This platform represents a significant architectural upgrade from a standard Multi-Agent implementation. By integrating Databricks, the system transitions from a basic retrieval chatbot to a robust MLOps Platform featuring:
-
-1.  **Industrial Data Engineering**: Replacing ad-hoc S3 uploads with Databricks Auto Loader for scalable, reliable PDF ingestion.
-2.  **Modern Data Governance**: Utilizing Databricks Unity Catalog to provide enterprise-grade data security, lineage, and discovery across all S3 storage.
-3.  **Serverless First**: Leveraging Serverless SQL Warehouses and Serverless Notebooks to eliminate the overhead of managing EC2 clusters.
-4.  **Advanced Evaluation**: Implementing MLflow to systematically benchmark agent performance against Golden Datasets.
 
 ---
 
-## Databricks Modern Integration
+## Conversational Analytics (Databricks Ingestion)
 
-The platform utilizes a **Unity Catalog** and **Serverless** architecture to bypass legacy EC2 cluster limitations and provide enterprise-ready governance.
+The platform implements a continuous feedback loop where all AI activity is land-locked for analysis.
 
-### Credentials Setup
-To run the Terraform deployment, the following variables must be configured in `env/dev/locals.tf`:
+### Querying Chat Logs in Databricks SQL
+You can monitor user behavior and AI performance directly from your SQL Warehouse:
 
-- **databricks_host**: The Workspace URL (e.g., `https://adb-xxxx.cloud.databricks.com`).
-- **databricks_token**: A Personal Access Token generated via **User Settings** -> **Developer** -> **Access tokens**.
-
-### Unity Catalog Data Flow
-The dynamic relationship between S3 storage, Unity Catalog governance, and Bedrock serving.
-
-```mermaid
-graph TD
-    subgraph "S3 Storage (Governed by UC)"
-        RAW["Raw Bucket"]
-        SILVER["Silver Bucket"]
-        GOLD["Gold Bucket"]
-    end
-
-    subgraph "Databricks Unity Catalog"
-        SC["Storage Credential<br>(IAM Role)"]
-        EL["External Locations<br>(S3 Registration)"]
-        CAT["mortgage_xpert Catalog"]
-        WH["Serverless SQL Warehouse"]
-    end
-
-    subgraph "Amazon Bedrock"
-        KB["Knowledge Base"]
-        AGENT["Bedrock Agent"]
-    end
-
-    RAW -.-> EL
-    SILVER -.-> EL
-    GOLD -.-> EL
-    EL --- SC
-    SC --- CAT
-    WH --> CAT
-    CAT --> GOLD
-    GOLD -- "Sync" --> KB
-    KB --> AGENT
+```sql
+-- View all bot activity from the Bronze layer
+SELECT 
+  timestamp::timestamp as event_time,
+  userMessage as question,
+  botResponse as answer,
+  citations
+FROM json.`s3://[YOUR-RAW-BUCKET]/chat_logs/*/*.json`
+ORDER BY event_time DESC;
 ```
 
-### Managed Resources
-The `modules/databricks` layer provisions the following objects:
-
-| Resource | Scope | Purpose |
-| :--- | :--- | :--- |
-| **Storage Credential** | Global | Links AWS IAM Roles to Unity Catalog. |
-| **External Locations**| Workspace | Registers S3 buckets as secure, accessible storage paths. |
-| **Catalog** | Global | The top-level container (`mortgage_xpert`) for platform data. |
-| **Schemas** | Catalog | Organizes data into bronze, silver, and gold layers. |
-| **SQL Warehouse** | Workspace | Serverless compute for all data engineering and AI queries. |
+### Real-Time Data Lake Sync
+Users can trigger an immediate re-population of the data lake via the AI agent:
+- **Prompt**: *"Perform a full sync of all mortgage indices to our data lake."*
+- **Action**: The Agent invokes the `FRED` sync tool, fetching 30yr/15yr/ARM rates and landing them as fresh JSON assets in the `raw/mortgage_rates/` prefix.
 
 ---
 
-## Scalable Infrastructure (Main Module Approach)
+## Enterprise RAG & Agency
 
-The infrastructure is provisioned using the **Terraform Main Module** pattern. This strictly separates environment configuration from resource logic, ensuring:
-*   **Identical Environments**: Development, Staging, and Production environments share the exact same codebase, eliminating configuration drift.
-*   **Atomic Updates**: Changes to the core "Umbrella" module propagate consistently across all environments.
-*   **Simplified State Management**: Each environment maintains an isolated state file backend.
+The **Mortgage Xpert** agent is configured as an authoritative internal specialist.
 
-### Architecture: Facts vs. Wiring
-The design separates static configuration from automated resource composition.
+1.  **Authoritative Persona**: Unlike generic LLMs, this agent is instructed to speak as the firm's expert, utilizing internal Knowledge Bases as the definitive source of truth.
+2.  **Rich Citations**: Responses include `[number]` markers that link directly to internal PDF guidelines stored in S3 and managed by Databricks.
+3.  **Tool-Augmented Intelligence**: Leverages AWS Lambda to bridge the gap between static guidelines and live financial APIs.
 
-1. **Environment Data (locals.tf)**: Defines "Facts" that only the environment knows (VPC CIDR, Subnet map, AZs, and Public/Private status).
-2. **Orchestration Logic (infrastructure/main.tf)**: Functions as the "Wiring." It automatically calculates dependencies on the fly, eliminating redundant manual configuration.
+---
 
-#### Automated Derived Logic
-The orchestrator dynamically calculates the following:
+## Scalable IaC Infrastructure
 
-- **Gateways**: Instead of manual mapping, the system automatically provisions a NAT Gateway for every public subnet.
-```hcl
-nat_gateway_config = {
-  for k, v in each.value.subnets : k => module.subnets[each.key].subnet_ids[k] 
-  if v.public
-}
-```
+The infrastructure follows the **Terraform Main Module** pattern, ensuring strict separation between environment facts and resource logic.
 
-- **AZ-Aware Routing**: Private subnets are automatically mapped to the NAT Gateway residing in their same Availability Zone.
-```hcl
-nat_gateway_id = [
-  for pk, pv in each.value.subnets : pk 
-  if pv.public && pv.availability_zone == v.availability_zone
-][0]
-```
+### Managed Databricks Resources
+The `modules/databricks` layer provisions:
+- **Unity Catalog Storage Credentials**: Links AWS IAM Roles to UC.
+- **External Locations**: Securely registers S3 buckets as governed storage.
+- **Metastore Catalogs & Schemas**: Organizes the `mortgage_xpert` data hierarchy.
+- **Serverless SQL Warehouse**: Provides compute for data engineering and BI.
+
+---
+
+## Deployment & Verification
 
 ### Deployment Workflow
-Use the -chdir option to manage environments from the root directory:
+Initialize and apply from the `env/` directory:
 
 ```bash
-# Initialize
 terraform -chdir=env/dev init
-
-# Apply
 terraform -chdir=env/dev apply
 ```
 
-### Project Structure
-
-```text
-.
-├── env/
-│   ├── dev/
-│   ├── staging/
-│   └── prod/
-├── infrastructure/
-├── modules/
-│   ├── networking/
-│   │   ├── gateways/
-│   │   ├── routing/
-│   │   ├── subnets/
-│   │   └── vpc/
-│   ├── databricks/
-│   ├── iam/
-│   └── storage/
-└── scripts/
-```
-
----
-
-## Deployment Verification
-
-The networking infrastructure is verified through live AWS metadata inspection to ensure correct traffic routing.
-
-### 1. Private-to-NAT Routing
-Verify that the private subnet is correctly directed to the NAT Gateway:
+### Verification CLI
+Verify the private-to-NAT routing to ensure secure Lambda-to-Data-Lake communication:
 ```bash
 aws ec2 describe-route-tables \
   --filters "Name=association.subnet-id,Values=[PRIVATE_SUBNET_ID]" \
-  --query 'RouteTables[0].Routes[?DestinationCidrBlock==`0.0.0.0/0`]'
-```
-
-### 2. Public-to-Internet Routing
-Verify that the NAT Gateway resides in a subnet with a path to the Internet Gateway:
-```bash
-aws ec2 describe-route-tables \
-  --filters "Name=association.subnet-id,Values=[PUBLIC_SUBNET_ID]" \
   --query 'RouteTables[0].Routes[?DestinationCidrBlock==`0.0.0.0/0`]'
 ```
 
@@ -205,9 +127,9 @@ aws ec2 describe-route-tables \
 
 | Component | Technology | Primary Function |
 | :--- | :--- | :--- |
-| **IaC** | **Terraform** | Infrastructure orchestration for AWS & Databricks resources. |
-| **Governance**| **Unity Catalog** | Centralized access control and discovery for all data assets. |
-| **Compute** | **Serverless SQL** | Dedicated serverless endpoints for data engineering and AI queries. |
-| **GenAI** | **AWS Bedrock** | Agentic orchestration and Knowledge Base (OpenSearch Serverless). |
-| **MLOps** | **MLflow** | Experiment tracking, model registry, and agent evaluation. |
-| **Integration** | **AWS Lambda** | Serverless connectivity for external APIs (FRED). |
+| **Data Platform** | **Databricks** | Lakehouse governance, Auto Loader, and AI Analytics. |
+| **GenAI Engine** | **AWS Bedrock** | Authoritative Agent (Claude 3 Haiku) & RAG Knowledge Base. |
+| **IaC** | **Terraform** | Multi-provider orchestration for AWS & Databricks. |
+| **Governance** | **Unity Catalog** | Centralized access control for S3 and Delta tables. |
+| **Integrations** | **AWS Lambda** | Real-time market data ingestion and tool execution. |
+| **Evaluation** | **MLflow** | Systematic tracking of Agent and Model metrics. |
