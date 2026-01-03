@@ -58,8 +58,8 @@ locals {
   lambda_config = {
     runtime       = "python3.11"
     handler       = "fred_fetcher.handler"
-    timeout       = 10
-    memory_size   = 128
+    timeout       = 60
+    memory_size   = 512
     allow_bedrock = true
   }
 

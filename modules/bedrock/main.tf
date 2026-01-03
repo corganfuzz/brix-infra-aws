@@ -132,9 +132,9 @@ EOF
 }
 
 # Knowledge Base (KB)
-resource "aws_bedrockagent_knowledge_base" "this" {
+resource "aws_bedrockagent_knowledge_base" "this_v2" {
   depends_on = [opensearch_index.this]
-  name       = "${var.project_name}-${var.environment}-kb"
+  name       = "${var.project_name}-${var.environment}-kb-v2"
   role_arn   = var.bedrock_kb_role_arn
 
   knowledge_base_configuration {
@@ -158,14 +158,15 @@ resource "aws_bedrockagent_knowledge_base" "this" {
   }
 }
 
-resource "aws_bedrockagent_data_source" "this" {
-  knowledge_base_id = aws_bedrockagent_knowledge_base.this.id
-  name              = "${var.project_name}-${var.environment}-ds"
+resource "aws_bedrockagent_data_source" "this_v2" {
+  knowledge_base_id = aws_bedrockagent_knowledge_base.this_v2.id
+  name              = "${var.project_name}-${var.environment}-ds-v3"
 
   data_source_configuration {
     type = "S3"
     s3_configuration {
-      bucket_arn = var.kb_s3_bucket_arn
+      bucket_arn         = var.kb_s3_bucket_arn
+      inclusion_prefixes = ["guidelines/"]
     }
   }
 }
@@ -192,7 +193,7 @@ resource "aws_bedrockagent_agent_action_group" "fred" {
     member_functions {
       functions {
         name        = "fetch_mortgage_rates"
-        description = "Gets the latest 30-year fixed mortgage rates from the Federal Reserve (FRED)."
+        description = "Synchronizes and ingests live mortgage indices (30yr, 15yr, 5yr ARM, 10yr Treasury) from the Federal Reserve (FRED) directly into our S3 Data Lake (Bronze layer)."
       }
     }
   }
@@ -201,7 +202,7 @@ resource "aws_bedrockagent_agent_action_group" "fred" {
 resource "aws_bedrockagent_agent_knowledge_base_association" "this" {
   agent_id             = aws_bedrockagent_agent.this.id
   agent_version        = var.bedrock_config.agent_version
-  knowledge_base_id    = aws_bedrockagent_knowledge_base.this.id
-  description          = "Access to mortgage guidelines and dictionaries."
+  knowledge_base_id    = aws_bedrockagent_knowledge_base.this_v2.id
+  description          = "Access to ALL internal mortgage guidelines, DTI limits, and documentation standards. Use this first for all financing questions."
   knowledge_base_state = "ENABLED"
 }

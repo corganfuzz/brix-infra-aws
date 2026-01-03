@@ -245,3 +245,20 @@ resource "aws_iam_role_policy" "bedrock_agent_model_access" {
     ]
   })
 }
+
+resource "aws_iam_role_policy" "api_proxy_s3_log_access" {
+  for_each = contains(keys(var.iam_roles), "api-proxy") ? { "api-proxy" = var.iam_roles["api-proxy"] } : {}
+  name     = "ApiProxyS3LogAccess"
+  role     = aws_iam_role.this["api-proxy"].id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action   = "s3:PutObject"
+        Effect   = "Allow"
+        Resource = "arn:aws:s3:::*-raw-data-*/*"
+      }
+    ]
+  })
+}

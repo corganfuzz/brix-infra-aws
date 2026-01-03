@@ -147,8 +147,9 @@ module "lambda_api_proxy" {
   lambda_config = var.api_proxy_config
 
   environment_variables = {
-    AGENT_ID       = module.bedrock["enabled"].agent_id
-    AGENT_ALIAS_ID = "TSTALIASID" # Default DRAFT alias
+    AGENT_ID        = module.bedrock["enabled"].agent_id
+    AGENT_ALIAS_ID  = "TSTALIASID" # Default DRAFT alias
+    RAW_BUCKET_NAME = module.storage.bucket_names["raw"]
   }
 }
 
