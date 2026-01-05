@@ -12,8 +12,12 @@ terraform {
     databricks = {
       source = "databricks/databricks"
     }
-    archive = {
-      source = "hashicorp/archive"
+    time = {
+      source = "hashicorp/time"
+    }
+    opensearch = {
+      source  = "opensearch-project/opensearch"
+      version = "~> 2.0"
     }
   }
   backend "s3" {
@@ -26,4 +30,9 @@ terraform {
 provider "databricks" {
   host  = var.databricks_host
   token = var.databricks_token
+}
+
+provider "opensearch" {
+  url         = module.infrastructure.bedrock_collection_endpoint
+  healthcheck = false
 }

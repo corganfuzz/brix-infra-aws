@@ -5,7 +5,7 @@ locals {
   project_name     = "mortgage-xpert"
   environment      = "staging"
   aws_region       = "us-east-1"
-  enable_ai_engine = false
+  enable_ai_engine = true
 
   # ==============================================
   # Networking Configuration
@@ -39,6 +39,7 @@ locals {
     "bedrock-kb"    = { trust_service = "bedrock.amazonaws.com" }
     "databricks"    = { trust_service = "ec2.amazonaws.com" }
     "fred-fetcher"  = { trust_service = "lambda.amazonaws.com" }
+    "api-proxy"     = { trust_service = "lambda.amazonaws.com" }
   }
 
   # ==============================================
@@ -46,7 +47,7 @@ locals {
   # ==============================================
   bedrock_config = {
     embedding_model_arn = "arn:aws:bedrock:us-east-1::foundation-model/amazon.titan-embed-text-v2:0"
-    foundation_model    = "meta.llama3-70b-instruct-v1:0"
+    foundation_model    = "anthropic.claude-3-haiku-20240307-v1:0"
     vector_index_name   = "bedrock-knowledge-base-default-index"
     agent_version       = "DRAFT"
   }
@@ -55,10 +56,19 @@ locals {
   # AWS Lambda Configuration
   # ==============================================
   lambda_config = {
-    runtime     = "python3.11"
-    handler     = "fred_fetcher.handler"
-    timeout     = 10
-    memory_size = 128
+    runtime       = "python3.11"
+    handler       = "fred_fetcher.handler"
+    timeout       = 60
+    memory_size   = 512
+    allow_bedrock = true
+  }
+
+  api_proxy_config = {
+    runtime       = "python3.11"
+    handler       = "index.lambda_handler"
+    timeout       = 30
+    memory_size   = 256
+    allow_bedrock = false
   }
 
   # ==============================================
