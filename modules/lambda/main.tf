@@ -1,7 +1,7 @@
 data "archive_file" "zip" {
   type        = "zip"
   source_dir  = var.source_dir
-  output_path = "${path.module}/builds/${var.function_name}.zip"
+  output_path = "${path.root}/.terraform/lambda_builds/${var.function_name}.zip"
 }
 
 resource "aws_lambda_function" "this" {
