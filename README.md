@@ -111,37 +111,82 @@ An enterprise-grade RAG architecture deployed on AWS and Databricks using Terraf
 The following diagram illustrates the data flow and component integration across AWS and Databricks.
 
 ```mermaid
-graph LR
-    User((User)) <-->|Query| Agent["Bedrock Agent<br>(Chief Orchestrator)"]
+flowchart TB
+    User([👤 Mobile User])
     
-    subgraph AWS_Layer ["AWS Cloud"]
-        Agent <--> KB[Bedrock Knowledge Base]
-        Agent <-->|Tool Call| Lambdas["AWS Lambda<br>(Unified Module)"]
-        Lambdas <-->|Sync| FRED_API[FRED mortgage rates]
-    end
-    
-    subgraph Databricks_Layer ["Databricks Lakehouse"]
-        subgraph Data_Engineering ["Data & Governance"]
-            Raw[S3 Raw Bucket] -->|Auto Loader| Bronze["Bronze Delta Table"]
-            Bronze -->|ETL| Silver["Silver Delta Table"]
-            Silver -->|AI Chunking| JSONL[S3 KB Source]
+    subgraph AWS ["☁️ AWS Cloud Infrastructure"]
+        direction TB
+        API[API Gateway]
+        
+        subgraph Bedrock ["🤖 Bedrock AI Layer"]
+            Agent["Bedrock Agent<br/><b>Chief Orchestrator</b><br/>(Claude Haiku)"]
+            KB["Knowledge Base<br/>(OpenSearch)"]
         end
-
-        subgraph AI_Inference ["MLOps & Inference"]
-            DBS["Databricks Model Serving<br>(Specialist Model)"]
-            MLflow{MLflow Tracking}
+        
+        subgraph Lambda ["⚡ Serverless Compute"]
+            direction LR
+            L1["FRED<br/>Fetcher"]
+            L2["API<br/>Proxy"]
+            L3["Databricks<br/>Bridge"]
         end
     end
     
-    Agent <-->|Complex Analysis| Lambdas
-    Lambdas <-->|Inference| DBS
-    DBS -.->|Track| MLflow
-    JSONL -->|Sync| KB
+    subgraph Databricks ["🏠 Databricks Lakehouse Platform"]
+        direction TB
+        
+        subgraph Storage ["💾 Unity Catalog Data Lake"]
+            direction LR
+            S3_Raw[("S3 Raw")] --> Bronze[("Bronze Δ")]
+            Bronze --> Silver[("Silver Δ")]
+            Silver --> Gold[("Gold Δ")]
+        end
+        
+        subgraph Compute ["⚙️ Serverless Compute"]
+            SQL["SQL Warehouse"]
+            Serving["Model Serving<br/><b>Specialist Agent</b><br/>(Llama 3.1 8B)"]
+        end
+        
+        subgraph MLOps ["📊 AI Governance"]
+            MLflow["MLflow<br/>Tracking & Registry"]
+            UC["Unity Catalog<br/>Access Control"]
+        end
+    end
     
-    style User fill:#fff,stroke:#333
-    style Agent fill:#f9f,stroke:#333
-    style FRED_API fill:#bfb,stroke:#333
-    style DBS fill:#3498db,color:#fff,stroke:#333
+    FRED["📈 FRED API"]
+    
+    %% User Flow
+    User <-->|HTTPS| API
+    API <--> L2
+    L2 <-->|Invoke| Agent
+    
+    %% Agent Intelligence
+    Agent <-->|RAG Query| KB
+    Agent -->|"Simple Tasks<br/>(Policy Lookup)"| KB
+    Agent -->|"Complex Tasks<br/>(Refinance Math)"| L3
+    
+    %% Lambda Functions
+    L3 <-->|REST| Serving
+    L1 <-->|REST| FRED
+    L1 -->|JSON| S3_Raw
+    
+    %% Data Pipeline
+    Gold -->|Sync| KB
+    SQL --> Storage
+    
+    %% MLOps Tracking
+    Serving -.->|Log Queries| MLflow
+    Bronze -.->|Lineage| UC
+    
+    %% Styling
+    classDef aws fill:#FF9900,stroke:#232F3E,stroke-width:2px,color:#fff
+    classDef databricks fill:#FF3621,stroke:#1b3139,stroke-width:2px,color:#fff
+    classDef inference fill:#00A4E4,stroke:#003D5C,stroke-width:3px,color:#fff
+    classDef data fill:#2ECC71,stroke:#27AE60,stroke-width:2px,color:#fff
+    
+    class Agent,KB aws
+    class Serving,MLflow databricks
+    class Serving inference
+    class Bronze,Silver,Gold data
 ```
 
 ### Architectural Evolution: The MLOps Leap
