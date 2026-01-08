@@ -74,6 +74,7 @@ The `modules/databricks` layer provisions the following objects:
 | **Catalog** | Global | The top-level container (`mortgage_xpert`) for platform data. |
 | **Schemas** | Catalog | Organizes data into bronze, silver, and gold layers. |
 | **SQL Warehouse** | Workspace | Serverless compute for all data engineering and AI queries. |
+| **Model Serving** | Workspace | Serverless endpoints for real-time specialized LLM inference. |
 
 ---
 
@@ -111,37 +112,36 @@ The following diagram illustrates the data flow and component integration across
 
 ```mermaid
 graph LR
-    User((User)) <-->|Query| Agent["Bedrock Agent<br>(Mortgage Advisor)"]
+    User((User)) <-->|Query| Agent["Bedrock Agent<br>(Chief Orchestrator)"]
     
-    subgraph AWS_Serving ["AWS Serving Layer"]
+    subgraph AWS_Layer ["AWS Cloud"]
         Agent <--> KB[Bedrock Knowledge Base]
-        Agent <-->|Tool Call| Lambda[AWS Lambda]
-        Lambda <-->|HTTPS| FRED_API[FRED API]
-        Agent <-->|Complex Query| SM["SageMaker Endpoint<br>(Specialist Model)"]
+        Agent <-->|Tool Call| Lambdas["AWS Lambda<br>(Unified Module)"]
+        Lambdas <-->|Sync| FRED_API[FRED mortgage rates]
     end
     
-    subgraph Databricks_Engine ["Databricks Engine"]
-        Raw[S3 Raw Bucket] -->|Auto Loader| Bronze["Delta Table<br>(Bronze)"]
-        Bronze -->|Spark ETL| Silver["Delta Table<br>(Silver)"]
-        Silver -->|Chunking| JSONL[S3 KB Source]
-        
-        MLflow{MLflow Tracking} -.->|Metrics| Silver
-        MLflow -.->|Evaluation| Agent
+    subgraph Databricks_Layer ["Databricks Lakehouse"]
+        subgraph Data_Engineering ["Data & Governance"]
+            Raw[S3 Raw Bucket] -->|Auto Loader| Bronze["Bronze Delta Table"]
+            Bronze -->|ETL| Silver["Silver Delta Table"]
+            Silver -->|AI Chunking| JSONL[S3 KB Source]
+        end
+
+        subgraph AI_Inference ["MLOps & Inference"]
+            DBS["Databricks Model Serving<br>(Specialist Model)"]
+            MLflow{MLflow Tracking}
+        end
     end
     
+    Agent <-->|Complex Analysis| Lambdas
+    Lambdas <-->|Inference| DBS
+    DBS -.->|Track| MLflow
     JSONL -->|Sync| KB
     
     style User fill:#fff,stroke:#333
     style Agent fill:#f9f,stroke:#333
     style FRED_API fill:#bfb,stroke:#333
     style DBS fill:#3498db,color:#fff,stroke:#333
-
-    subgraph Dual_Agent_Expertise ["Dual-Agent & MLOps Layer"]
-        Agent <-->|Complex Analysis| Bridge[Databricks Bridge Lambda]
-        Bridge <-->|HTTPS| DBS[Databricks Model Serving]
-        DBS -.->|Log| MLflow
-        MLflow -.->|Eval| Agent
-    end
 ```
 
 ### Architectural Evolution: The MLOps Leap
@@ -193,6 +193,18 @@ nat_gateway_id = [
 ][0]
 ```
 
+#### Automated Lambda Orchestration
+The platform utilizes a **Single-Module / Multi-Function** pattern for serverless compute. Instead of hardcoded module instances, all Lambdas are provisioned via a unified `for_each` loop over a configuration map in `locals.tf`.
+
+```hcl
+module "lambda" {
+  for_each = var.enable_ai_engine ? var.lambdas : {}
+  source   = "../modules/lambda"
+  # ... automated wiring of roles, sources, and env vars ...
+}
+```
+This ensures perfect architectural parity across all functions and eliminates manual wiring errors.
+
 ### Deployment Workflow
 Use the -chdir option to manage environments from the root directory:
 
@@ -215,13 +227,16 @@ terraform -chdir=env/dev apply
 ├── infrastructure/
 ├── modules/
 │   ├── networking/
-│   │   ├── gateways/
-│   │   ├── routing/
-│   │   ├── subnets/
-│   │   └── vpc/
 │   ├── databricks/
+│   │   ├── main.tf
+│   │   └── model_serving.tf
 │   ├── iam/
-│   └── storage/
+│   ├── storage/
+│   └── lambda/
+│       ├── main.tf
+│       ├── src/           # FRED Fetcher
+│       ├── src_proxy/     # API Proxy
+│       └── src_databricks/# DB Bridge
 └── scripts/
 ```
 
@@ -264,6 +279,7 @@ aws ec2 describe-route-tables \
 | **IaC** | **Terraform** | Infrastructure orchestration for AWS & Databricks resources. |
 | **Governance**| **Unity Catalog** | Centralized access control and discovery for all data assets. |
 | **Compute** | **Serverless SQL** | Dedicated serverless endpoints for data engineering and AI queries. |
+| **Inference** | **Model Serving** | Serverless LLM endpoints for specialized mortgage reasoning. |
 | **GenAI** | **AWS Bedrock** | Authoritative Agentic orchestration and Knowledge Base. |
 | **MLOps** | **MLflow** | Experiment tracking, model registry, and agent evaluation. |
-| **Integration** | **AWS Lambda** | Serverless connectivity for external APIs (FRED). |
+| **Integration** | **AWS Lambda** | Unified serverless compute for external APIs and cross-cloud bridging. |
