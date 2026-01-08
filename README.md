@@ -134,7 +134,22 @@ graph LR
     style User fill:#fff,stroke:#333
     style Agent fill:#f9f,stroke:#333
     style FRED_API fill:#bfb,stroke:#333
+    style DBS fill:#3498db,color:#fff,stroke:#333
+
+    subgraph Dual_Agent_Expertise ["Dual-Agent & MLOps Layer"]
+        Agent <-->|Complex Analysis| Bridge[Databricks Bridge Lambda]
+        Bridge <-->|HTTPS| DBS[Databricks Model Serving]
+        DBS -.->|Log| MLflow
+        MLflow -.->|Eval| Agent
+    end
 ```
+
+### Architectural Evolution: The MLOps Leap
+This update transitions Mortgage Xpert from a standard RAG bot to an **MLOps-powered platform**. By decoupling orchestration (AWS Bedrock) from domain-specialized inference (Databricks), we achieve:
+
+1.  **Industrial MLOps**: Moving beyond simple API calls to a governed model lifecycle tracked by MLflow and governed by Unity Catalog.
+2.  **Hybrid Intelligence**: Optimizing for cost with Claude Haiku while leveraging specialized, fine-tuned Llama models on Databricks for complex math and policy reasoning.
+3.  **Continuous Improvement Loop**: Every complex query logged in the Lakehouse becomes training data for the *next* version of your fine-tuned model.
 
 ### Architectural Evolution
 This platform represents a significant architectural upgrade from a standard Multi-Agent implementation. By integrating Databricks, the system transitions from a basic retrieval chatbot to a robust MLOps Platform featuring:
