@@ -4,6 +4,8 @@ A high-performance GenAI platform that leverages **Databricks** for industrial d
 
 This platform transforms an AI Mortgage Advisor into a governed data asset, where every interaction and market update is land-locked into the Databricks Lakehouse.
 
+A detailed explanation and development process can be found [here](https://zircon-lip-5ec.notion.site/Mortgage-Xpert-2e0266e0cc2380a39552f1956910b999)
+
 ## Table of Contents
 1. [Prerequisites](#prerequisites)
 2. [Databricks Modern Integration](#databricks-modern-integration)
